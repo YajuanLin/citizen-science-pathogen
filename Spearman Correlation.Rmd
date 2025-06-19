@@ -1,0 +1,105 @@
+---
+title: "Statistical analysis"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Correlation
+```{r}
+## Reorder (updated code)
+library(corrplot)
+
+p = read.csv('~/corpthasv2025.csv')
+
+# Extract only the numeric columns (excluding 'Sample')
+pnum = p[,2:12]
+
+# Compute correlation
+p.cor <- cor(pnum, method = "spearman")
+test <- cor.mtest(p.cor)
+
+# Define custom order for axes
+custom_order <- c(
+  "Chao1", "Shannon", "Escherichia.coli", "Acinetobacter", "Salmonella",
+  "Legionella", "Leptospira", "Aeromonas", "Mycobacterium", "Brevundimonas", "Pathogen"
+)
+
+# Reorder the matrices according to the custom order
+p.cor <- p.cor[custom_order, custom_order]
+test$p <- test$p[custom_order, custom_order]
+
+# Save output to PDF
+pdf(file = "/Users/wendywen/Desktop/corasv_spear.pdf")
+
+# Generate the correlation plot
+corrplot.mixed(
+  p.cor,
+  lower = "number",
+  upper = "circle",
+  p.mat = test$p,
+  sig.level = c(0.001, 0.01, 0.05),
+  pch.cex = 1,
+  insig = 'label_sig',
+  pch.col = 'grey20',
+  order = 'original',  # maintain the manual order
+  tl.pos = "lt",
+  tl.col = "black",
+  tl.cex = 1,
+  number.cex = 1,
+  upper.col = colorRampPalette(c("dodgerblue4", "white", "red3"))(200),
+  lower.col = colorRampPalette(c("dodgerblue4", "white", "red3"))(200)
+)
+
+# Close the PDF device
+dev.off()
+```
+
+```{r}
+## No significance label
+# Load necessary libraries
+library(readxl)
+library(corrplot)
+
+# Load the data
+p = read.csv('~/corpthasv2025.csv')
+
+# Extract only the numeric columns (excluding 'Sample')
+pnum <- p[,2:12]
+
+# Calculate Spearman correlation matrix
+p.cor <- cor(pnum, method = "spearman")
+
+# Define custom order for axes
+custom_order <- c(
+  "Chao1", "Shannon", "Escherichia coli", "Acinetobacter", "Salmonella",
+  "Legionella", "Leptospira", "Aeromonas", "Mycobacterium", "Brevundimonas", "Pathogen"
+)
+
+# Reorder the matrix
+p.cor <- p.cor[custom_order, custom_order]
+
+# Save the plot to a PDF
+pdf(file = "/Users/wendywen/Desktop/corasv_spear.pdf")
+
+# Generate the correlation plot without significance labels
+corrplot.mixed(
+  p.cor,
+  lower = "number",
+  upper = "circle",
+  order = "original",  # keep your custom order
+  tl.pos = "lt",
+  tl.col = "black",
+  tl.cex = 1,
+  number.cex = 1,
+  upper.col = colorRampPalette(c("dodgerblue4", "white", "red3"))(200),
+  lower.col = colorRampPalette(c("dodgerblue4", "white", "red3"))(200)
+)
+
+# Close the PDF device
+dev.off()
+```

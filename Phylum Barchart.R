@@ -1,0 +1,66 @@
+# Phylum
+a<-read.csv('~/phylum_ra_rt')
+#a<-phylum_ra
+library(dplyr)
+library(ggplot2)
+
+b<-t(a)
+colnames(b)=b[1,]
+d=b[-1,]
+
+dt<-as.data.frame(d)
+
+dt[,1]<- as.numeric(dt[,1])
+
+od<-dt[order(dt[,1]),]
+
+od[,3:14]<-as.numeric(unlist(od[,3:14]))
+
+rownames(od)=od[,2]
+
+gg=od[,-1]
+
+gg$sa=factor(gg$sa, levels = c(gg$sa)) #Set levels So that the x-axis in plot is in correct order.
+
+rawdata<-gg
+
+library(reshape2)
+mt <- melt(data=rawdata,id.vars=c("sa"),variable.name="Phylum",value.name="level")
+level<- 100*(mt$level)
+#daozhe
+
+Sample = mt$sa
+RA = level
+Phylum = mt$Phylum
+
+library(RColorBrewer)
+#palette1 <- brewer.pal(1,"Set1")
+#palette2 <- brewer.pal(1,"Set2")
+palette3 <- brewer.pal(1,"Set3")
+#palette4 <- brewer.pal(3,"Pastel1")
+#palette5 <- brewer.pal(4,"Dark2")
+#big_palette <- c(palette2,palette5)
+palette0 <- brewer.pal(11,"Paired")
+big_palette <- c(palette0, palette3)
+
+pth <- ggplot(mt, aes(x=Sample, y=RA, fill= Phylum)) + 
+  geom_col(position = 'stack', width = 0.6) +
+  xlab("Sample") + ylab("Relative Abundance (%)") +   
+  #theme_classic() 
+  #theme_gray() +
+  theme_bw() +
+  scale_y_continuous(expand = c(0,0)) +
+  #coord_cartesian(ylim = c(0, 1.5))
+  #theme(axis.ticks.x.top = element_line(),  axis.line = element_blank())
+  theme(axis.text.x = element_text(angle = 45,
+                                       hjust = 1,
+                                       size = 10)) +
+      theme(axis.text.y = element_text(lineheight = 1, 
+                                   size = 10)) +
+      scale_fill_manual(values = big_palette)
+  
+  #theme(panel.grid.major.x  = element_line(NA),panel.grid.major.y  = element_line()) +
+  #theme(axis.ticks.x.top = element_line(),  axis.line = element_blank())
+  #theme(legend.key=element_blank())
+  
+ggsave("~/Desktop/phylum_by_lat_new.png",width=10,height=7,dpi="retina")
